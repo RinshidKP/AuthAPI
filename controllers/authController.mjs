@@ -25,7 +25,7 @@ export async function signup(req, res) {
     // Check if user already exists
     const existingUser = await User.findOne({ sanitizedEmail });
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(409).json({ error: 'User already exists' });
     }
 
     // Hash the password
@@ -46,7 +46,7 @@ export async function signup(req, res) {
     // Store refresh token in database
     await storeRefreshToken(newUser._id, refreshToken);
 
-    res.json({ accessToken, refreshToken });
+    res.json({ accessToken, refreshToken }).status(201);
   } catch (error) {
     console.error('Error signing up:', error);
     res.status(500).json({ error: 'An error occurred while signing up' });
@@ -82,7 +82,7 @@ export async function login(req, res) {
     // Store refresh token in database
     await storeRefreshToken(user._id, refreshToken);
 
-    res.json({ accessToken, refreshToken });
+    res.json({ accessToken, refreshToken }).status(200);
   } catch (error) {
     console.error('Error logging in:', error);
     res.status(500).json({ error: 'An error occurred while logging in' });
@@ -104,7 +104,7 @@ export async function getUserDetails(req, res) {
     const user = await User.findById(decodedToken.userId).select(' -password -__v');
 
     // Send user details in response
-    res.json(user);
+    res.json(user).status(200);
   } catch (error) {
     console.error('Error retrieving user details:', error);
     res.status(500).json({ error: 'An error occurred while retrieving user details' });
@@ -115,8 +115,8 @@ export async function getUserDetails(req, res) {
 export async function updateUsername(req, res) {
     const { userId,newUsername } = req.body;
 
-    if (!userId) {
-        return res.status(400).json({ error: 'User id id required' })
+    if (!userId || !newUsername) {
+        return res.status(400).json({ error: 'User ID and new username are required' })
     }
     //Sanitizing the input to prevent attacks
     const sanitizedUserId = escape(userId);
@@ -138,10 +138,10 @@ export async function updateUsername(req, res) {
       await user.save();
       
       // Respond with a success message
-      res.json({ message: 'Username updated successfully' });
+      return res.json({ message: 'Username updated successfully' }).status(200);
     } catch (error) {
       console.error('Error updating username:', error);
-      res.status(500).json({ error: 'An error occurred while updating username' });
+       return res.status(500).json({ error: 'An error occurred while updating username' });
     }
   }
 
@@ -153,7 +153,7 @@ export async function logout(req, res) {
       await Token.deleteOne({ token: refreshToken });
 
       // Respond with a success message
-      res.json({ message: 'Logout successful' });
+      res.json({ message: 'Logout successful' }).status(200);
     } catch (error) {
       console.error('Error logging out:', error);
       res.status(500).json({ error: 'An error occurred while logging out' });
