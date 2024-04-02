@@ -1,6 +1,3 @@
-Certainly! Below is the same API documentation formatted for a Word document:
-
----
 
 # Authentication API Documentation
 
