@@ -99,5 +99,3 @@ Authorization: Bearer <access_token>
 - `500 Internal Server Error`: Unexpected server error.
 
 ---
-
-You can now copy and paste this content into your Word document. Adjustments can be made based on your specific formatting preferences.
